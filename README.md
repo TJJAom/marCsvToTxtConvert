@@ -1,0 +1,2 @@
+# marCsvToTxtConvert
+海險保發章程規格利用CSV的規格表轉換TXT到CSV檔的工具
