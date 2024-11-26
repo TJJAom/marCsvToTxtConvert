@@ -1,0 +1,31 @@
+{
+  "name": "field-generator",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win portable"
+  },
+  "build": {
+    "appId": "com.field.generator",
+    "productName": "cargo的txt轉換器",
+    "win": {
+      "target": "portable",
+      "artifactName": "cargo的txt轉換器.exe"
+    },
+    "files": [
+      "main.js",
+      "index.html"
+    ],
+    "asar": true,
+    "compression": "maximum"
+  },
+  "dependencies": {
+    "glob-promise": "^6.0.5",
+    "iconv-lite": "^0.6.3"
+  },
+  "devDependencies": {
+    "electron": "^29.1.0",
+    "electron-builder": "^24.13.3"
+  }
+}

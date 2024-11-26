@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>資料欄位解析器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            padding: 2rem;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            margin-bottom: 1.5rem;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            justify-content: center;
+        }
+
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            min-width: 200px;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 1rem;
+            border-radius: 5px;
+        }
+
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+            border: 1px solid #d6e9c6;
+        }
+
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+            border: 1px solid #ebccd1;
+        }
+
+        .processing {
+            background-color: #d9edf7;
+            color: #31708f;
+            border: 1px solid #bce8f1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>資料欄位解析器</h1>
+        <div class="button-group">
+            <button id="loadRules" class="button">1. 載入規則檔案 (CSV)</button>
+            <button id="loadData" class="button">2. 載入資料檔案 (TXT)</button>
+        </div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        
+        document.getElementById('loadRules').addEventListener('click', async () => {
+            const result = document.getElementById('result');
+            result.innerHTML = '<div class="processing">載入規則檔案中...</div>';
+            
+            try {
+                const response = await ipcRenderer.invoke('select-rules');
+                if (response.success) {
+                    result.innerHTML = `<div class="success">${response.message}</div>`;
+                } else {
+                    result.innerHTML = `<div class="error">${response.error}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">錯誤：${error.message}</div>`;
+            }
+        });
+
+        document.getElementById('loadData').addEventListener('click', async () => {
+            const result = document.getElementById('result');
+            result.innerHTML = '<div class="processing">處理資料中...</div>';
+            
+            try {
+                const files = await ipcRenderer.invoke('select-data');
+                if (files && files.length > 0) {
+                    const processResult = await ipcRenderer.invoke('process-file', files[0]);
+                    
+                    if (processResult.success) {
+                        result.innerHTML = `<div class="success">處理完成！輸出檔案位置：${processResult.path}</div>`;
+                    } else {
+                        result.innerHTML = `<div class="error">${processResult.error}</div>`;
+                    }
+                } else {
+                    result.innerHTML = '<div class="error">未選擇檔案</div>';
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">錯誤：${error.message}</div>`;
+            }
+        });
+    </script>
+</body>
+</html>
